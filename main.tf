@@ -122,12 +122,12 @@ resource "aws_db_instance" "default" {
 }
 
 #Associate RDS with Subnet Group
-resource "aws_db_subnet_group" "RDS_Subnet" {
-  name       = "RDS_Subnet"
+resource "aws_db_subnet_group" "rds_subnet" {
+  name       = "rds_subnet"
   subnet_ids = [aws_subnet.Private1a.id, aws_subnet.Private1b.id]
 
   tags = {
-    Name = "RDS_SBN_Group"
+    Name = "rds_sbn_Group"
   }
 }
 
@@ -160,17 +160,16 @@ resource "aws_security_group" "TF_SG" {
     to_port          = 0
     protocol         = "-1"
     cidr_blocks      = ["0.0.0.0/0"]
-    
-  }
+  } 
+  
+}
+ 
 
-  tags = {
-    Name = "TF_SG"
-  }
   
   
   #Load Balancer
   resource "aws_lb" "TF_LB" {
-  name               = "TF_LB"
+  name               = "TFLB"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.TF_SG.id]
