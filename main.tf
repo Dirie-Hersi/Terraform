@@ -63,7 +63,7 @@ resource "aws_subnet" "Public1A" {
 resource "aws_subnet" "Public1B" {
   vpc_id     = aws_vpc.Terraformvpc.id
   cidr_block = "10.0.2.0/24"
-   availability_zone = "us-east-1a"
+   availability_zone = "us-east-1b"
    map_public_ip_on_launch = true
 
   tags = {
@@ -108,7 +108,7 @@ resource "aws_subnet" "Private1b" {
 
 #Creating an RDS Database
 resource "aws_db_instance" "default" {
-  allocated_storage    = 02
+  allocated_storage    = 10
   db_name              = "my_tf_db"
   engine               = "mysql"
   engine_version       = "5.7"
@@ -117,22 +117,52 @@ resource "aws_db_instance" "default" {
   password             = "examplepassword"
   parameter_group_name = "default.mysql5.7"
   skip_final_snapshot  = true
-  vpc_security_group_ids = [aws_security_group.TF_SG.id]
+  db_subnet_group_name = "rds_subnet"
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  
   
 }
 
 #Associate RDS with Subnet Group
 resource "aws_db_subnet_group" "rds_subnet" {
   name       = "rds_subnet"
-  subnet_ids = [aws_subnet.Private1a.id, aws_subnet.Private1b.id]
+  subnet_ids = [aws_subnet.Private1a.id]
 
   tags = {
     Name = "rds_sbn_Group"
   }
 }
 
+#Security Group for RDS
+resource "aws_security_group" "rds_sg" {
+  name        = "rds_sg"
+  description = "SG for RDS"
+  vpc_id      = aws_vpc.Terraformvpc.id
 
-#Security Group
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 3306
+    to_port          = 3306
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.TF_SG.id]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "RDS_SG"
+  }
+}
+
+
+#Security Group for VPC
 
 resource "aws_security_group" "TF_SG" {
   name        = "TF_SG"
@@ -165,7 +195,6 @@ resource "aws_security_group" "TF_SG" {
 }
  
 
-  
   
   #Load Balancer
   resource "aws_lb" "TF_LB" {
