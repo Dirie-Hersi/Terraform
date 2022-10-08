@@ -81,12 +81,42 @@ resource "aws_route_table_association" "Public-Subnet2-RT-Association" {
   route_table_id = aws_route_table.public_route_table.id
 }
 
+#Private Subnet 1
+resource "aws_subnet" "Private1a" {
+  vpc_id     = aws_vpc.Terraformvpc.id
+  cidr_block = "10.0.3.0/24"
+  availability_zone = "us-east-1a"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "Private SBN 1"
+  }
+}
+
+#Private Subnet 2
+resource "aws_subnet" "Private1b" {
+  vpc_id     = aws_vpc.Terraformvpc.id
+  cidr_block = "10.0.4.0/24"
+  availability_zone = "us-east-1b"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "Private SBN 2"
+  }
+}
 
 
-
-
-
-
+resource "aws_db_instance" "default" {
+  allocated_storage    = 10
+  db_name              = "mydb"
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t3.micro"
+  username             = "foo"
+  password             = "foobarbaz"
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true
+}
 
 
 }
