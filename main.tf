@@ -107,9 +107,8 @@ resource "aws_subnet" "Private1b" {
 }
 
 #Creating an RDS Database
-resource "aws_db_instance" "default" {
+resource "aws_db_instance" "rds" {
   allocated_storage    = 10
-  db_name              = "my_tf_db"
   engine               = "mysql"
   engine_version       = "5.7"
   instance_class       = "db.t2.micro"
@@ -126,7 +125,7 @@ resource "aws_db_instance" "default" {
 #Associate RDS with Subnet Group
 resource "aws_db_subnet_group" "rds_subnet" {
   name       = "rds_subnet"
-  subnet_ids = [aws_subnet.Private1a.id]
+  subnet_ids = [aws_subnet.Private1a.id, aws_subnet.Private1b.id]
 
   tags = {
     Name = "rds_sbn_Group"
