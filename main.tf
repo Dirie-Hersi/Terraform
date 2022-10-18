@@ -30,7 +30,7 @@ resource "aws_ecs_cluster_capacity_providers" "my_ecs_cap" {
   capacity_providers = ["FARGATE"]
 
   default_capacity_provider_strategy {
-    capacity_provider = "FARGATE_SPOT"
+    capacity_provider = "FARGATE"
   }
 }
 
