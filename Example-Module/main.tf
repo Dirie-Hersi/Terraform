@@ -1,36 +1,45 @@
-resource "null_resource" "dockervol" {
-  provisioner "local-exec" {
-    command = "mkdir noderedvol/ || true && sudo chown -R 1000:1000 noderedvol/"
+locals {
+  deployment = {
+    nodered = {
+      container_count = length(var.ext_port["nodered"][terraform.workspace])
+      image = var.image ["nodered"][terraform.workspace]
+      int = 1880
+      ext = var.ext_port["nodered"][terraform.workspace]
+      container_path = "/data"
+    }
+    influxdb = {
+      container_count = length(var.ext_port["influxdb"][terraform.workspace])
+      image = var.image["influxdb"][terraform.workspace]
+        int = 8086
+      ext = var.ext_port["influxdb"][terraform.workspace]
+      container_path = "/var/lib/influxdb"
+    }
   }
 }
+
 
 module "image" {
   source   = "./image"
-  image_in = var.image[terraform.workspace]
-}
-
-resource "random_string" "random" {
-  count   = local.container_count
-  length  = 4
-  special = false
-  upper   = false
+  for_each = local.deployment
+  image_in = each.value.image
 }
 
 
-resource "docker_container" "nodered_container" {
-  depends_on = [null_resource.dockervol]
-  count = local.container_count
-  name  = join("-", ["nodered", terraform.workspace,random_string.random[count.index].result])
-  image = module.image.image_out
-  ports {
-    internal = var.int_port
-    external = var.ext_port[terraform.workspace][count.index]
-  }
-  volumes {
-    container_path = "/data"
-    host_path      = "${path.cwd}/noderedvol"
-  }
+
+
+
+module "container" {
+  source            = "./container"
+  count_in          = each.value.container_count
+  for_each          = local.deployment
+  name_in           = each.key
+  image_in          = module.image[each.key].image_out
+  int_port_in       = each.value.int
+  ext_port_in       = each.value.ext
+  container_path_in = each.value.container_path
 }
+
+
 
 
 
