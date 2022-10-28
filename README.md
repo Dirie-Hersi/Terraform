@@ -1,1 +1,1 @@
-All Terraform scripts
+All Terraform scripts and projects
