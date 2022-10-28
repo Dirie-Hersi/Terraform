@@ -1,1 +1,1 @@
-This is a project I did when learning Terraform modules. Custom EC2 module.
+Week 20 Project- Modules: Custom EC2 module.
