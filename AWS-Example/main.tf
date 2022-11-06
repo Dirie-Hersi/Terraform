@@ -14,3 +14,16 @@ module "networking" {
   db_subnet_group = true
 }
 
+module "database" {
+  source = "./database"
+  db_storage = 10
+  db_engine_version = "5.7.22"
+  db_instance_class = "db.t2.micro"
+  dbname = "rancher"
+  dbuser = "bobby"
+  dbpassword = "the79sx"
+  db_identifier = "mtc-db"
+  skip_db_snapshot = true
+  db_subnet_group_name = module.networking.db_subnet_group_name[0]
+  vpc_security_group_ids = module.networking.db_security_group
+} 
