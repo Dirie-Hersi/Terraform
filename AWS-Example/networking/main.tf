@@ -48,3 +48,11 @@ resource "aws_subnet" "mtc_private_subnet"{
         Name = "mtc_private_${count.index + 1}"
     }
 }
+
+resource "aws_internet_gateway" "mtc_internet_gateway" {
+    vpc_id = aws_vpc.mtc_vpc.id
+    
+    tags {
+        Name = "mtc_igw"
+    }
+}
